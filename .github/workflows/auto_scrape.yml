@@ -1,9 +1,7 @@
-name: Custom Data Scraper
+name: Keiba Scraper
 
 on:
-  schedule:
-    - cron: '0 15 * * *' # 日本時間 0時に毎日実行
-  workflow_dispatch:      # 「今すぐ実行」ボタンを出す設定
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,8 +15,7 @@ jobs:
         with:
           python-version: '3.9'
       - name: Install dependencies
-        run: |
-          pip install pandas requests lxml html5lib
+        run: pip install pandas requests lxml html5lib
       - name: Run scraper
         run: python scrape_script.py
       - name: Commit and push
