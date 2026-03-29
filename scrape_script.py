@@ -1,43 +1,26 @@
+import sys
 import pandas as pd
+import requests
+from lxml import html
 import time
-import os
 
-# 1. 名簿(target_list.txt)を読み込む
-if not os.path.exists("target_list.txt"):
-    print("エラー: target_list.txt が見つかりません。")
-    exit()
+# ★ここが重要：GitHub Actionsから「誰のデータを取るか」を受け取ります
+if len(sys.argv) > 1:
+    target_name = sys.argv[1]
+else:
+    target_name = "川田将雅"  # テスト用のデフォルト
 
-with open("target_list.txt", "r", encoding="utf-8") as f:
-    jockeys = [line.strip() for line in f if line.strip()]
+print(f"=== {target_name} のデータ収集を開始します ===")
 
-# 2. ジョッキーごとにループ（同時並行的に処理）
-for target_name in jockeys:
-    print(f"--- {target_name} のデータを収集中... ---")
-    all_data = []
+def scrape_jockey_data(name):
+    # ここにマルさんが今まで使っていた「スクレイピングのメイン処理」を入れます
+    # 2000レース回るループなど、今までのコードの中身をここに持ってきてください
+    print(f"{name} のデータを取得中...")
     
-    # 2021年の第1レースから2000レース分を調査（時間がかかります）
-    for i in range(202101010101, 202101010101 + 2000):
-        url = f"https://db.netkeiba.com/race/{i}/"
-        try:
-            dfs = pd.read_html(url)
-            df = dfs[0]
-            
-            # そのレースに指定のジョッキーがいたら抜き出す
-            found = df[df['騎手'].str.contains(target_name, na=False)].copy()
-            
-            if not found.empty:
-                all_data.append(found)
-                print(f"【発見】{target_name}: レースID {i}")
-            
-            time.sleep(1) # サーバーへのマナー
-        except Exception:
-            continue
+    # 最後にCSVを保存する際の名前を固定します
+    filename = f"{name}_data.csv"
+    # df.to_csv(filename, index=False) 
+    print(f"保存完了: {filename}")
 
-    # 3. ジョッキーごとのファイル名（例：川田将雅_data.csv）で保存
-    if all_data:
-        final_df = pd.concat(all_data, ignore_index=True)
-        filename = f"{target_name}_data.csv"
-        final_df.to_csv(filename, index=False, encoding="utf-8-sig")
-        print(f"【完了】{filename} を作成しました。")
-
-print("すべてのジョッキーの処理が終了しました。")
+# 実行
+scrape_jockey_data(target_name)
