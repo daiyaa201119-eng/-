@@ -18,10 +18,12 @@ jobs:
         run: pip install pandas requests lxml html5lib
       - name: Run scraper
         run: python scrape_script.py
-      - name: Commit and push
+- name: Commit and push
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
+          # もし変更がなければ何もしない、あれば最新をプルしてからプッシュ
           git commit -m "Update race data" || exit 0
-          git push
+          git pull --rebase origin main
+          git push origin main
