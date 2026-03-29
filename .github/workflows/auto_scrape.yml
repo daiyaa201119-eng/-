@@ -10,20 +10,24 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
+          
       - name: Install dependencies
         run: pip install pandas requests lxml html5lib
+        
       - name: Run scraper
         run: python scrape_script.py
-- name: Commit and push
+
+      - name: Commit and push
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          # もし変更がなければ何もしない、あれば最新をプルしてからプッシュ
+          # 変更があれば最新を取り込んでから保存、なければ終了
           git commit -m "Update race data" || exit 0
           git pull --rebase origin main
           git push origin main
