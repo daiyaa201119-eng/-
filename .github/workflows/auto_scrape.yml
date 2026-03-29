@@ -1,33 +1,37 @@
-name: Keiba Scraper
+name: Keiba Scraper Parallel
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * 0' # 毎週月曜 21:00 (JST)
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5    # 同時に5つのマシンで並列実行
+      fail-fast: false
+      matrix:
+        jockey: [川田将雅, 武豊, Ｃ．ルメール, 丹内祐次, 横山武史, 横山典弘, 松山弘平, 岩田望来, 西村淳也, 岩田康誠, 池添謙一, 三浦皇成, 佐々木大輔, 横山和生, 津村明秀, 団野大成, 吉村誠之助, 北村友一, 坂井瑠星]
+
     permissions:
       contents: write
+
     steps:
       - uses: actions/checkout@v3
-      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-          
       - name: Install dependencies
         run: pip install pandas requests lxml html5lib
-        
       - name: Run scraper
-        run: python scrape_script.py
-
+        run: python scrape_script.py "${{ matrix.jockey }}"
       - name: Commit and push
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          # 変更があれば最新を取り込んでから保存、なければ終了
-          git commit -m "Update race data" || exit 0
           git pull --rebase origin main
+          git commit -m "Update data for ${{ matrix.jockey }}" || exit 0
           git push origin main
